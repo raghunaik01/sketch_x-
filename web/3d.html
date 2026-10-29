@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SKETCH-X 3D Reconstruction</title>
+
+    <script type="module"
+        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            background: #06111f;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 25px;
+            color: #35d9ff;
+        }
+
+        model-viewer {
+            width: 90vw;
+            height: 75vh;
+            margin: auto;
+            background: #0b1b2d;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>SKETCH-X — 3D Forensic Reconstruction</h1>
+
+<model-viewer
+    src="/models/sketchx_latest.glb"
+    camera-controls
+    auto-rotate
+    rotation-per-second="25deg"
+    shadow-intensity="1"
+    exposure="1"
+    camera-orbit="0deg 75deg 2.5m"
+    alt="SKETCH-X 3D forensic facial reconstruction">
+</model-viewer>
+
+</body>
+</html>

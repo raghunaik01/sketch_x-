@@ -1,0 +1,3619 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKETCH-X | AI Forensic Composite Platform</title>
+
+<!-- THREE.JS FOR INTERACTIVE 3D -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<style>
+
+/* =========================================================
+   SKETCH-X GLOBAL
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    min-height:100%;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:#020b20;
+    color:#eef7ff;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+button{
+    font-family:inherit;
+    cursor:pointer;
+}
+
+.hidden{
+    display:none !important;
+}
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+      linear-gradient(rgba(0,140,255,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,140,255,.035) 1px,transparent 1px);
+    background-size:40px 40px;
+    z-index:0;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 15% 20%,rgba(0,130,255,.14),transparent 30%),
+      radial-gradient(circle at 85% 70%,rgba(80,0,255,.10),transparent 30%);
+    z-index:0;
+}
+
+/* =========================================================
+   LANDING PAGE
+========================================================= */
+
+#landingPage{
+    min-height:100vh;
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:30px;
+}
+
+.landing-shell{
+    width:min(1250px,100%);
+    min-height:720px;
+    border:1px solid #137eff;
+    border-radius:28px;
+    background:
+      radial-gradient(circle at 50% 35%,rgba(0,150,255,.18),transparent 38%),
+      linear-gradient(145deg,#061a3d,#020b20 70%);
+    box-shadow:
+      0 0 70px rgba(0,120,255,.18),
+      inset 0 0 60px rgba(0,120,255,.08);
+    overflow:hidden;
+    position:relative;
+}
+
+.landing-top{
+    height:85px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 38px;
+    border-bottom:1px solid rgba(30,150,255,.35);
+}
+
+.logo{
+    font-size:35px;
+    font-weight:900;
+    letter-spacing:-1px;
+}
+
+.logo span{
+    color:#26c8ff;
+}
+
+.top-label{
+    color:#74cfff;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
+
+.landing-main{
+    min-height:550px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    gap:40px;
+    padding:45px;
+}
+
+.hero-text h1{
+    font-size:58px;
+    line-height:1;
+    margin-bottom:22px;
+}
+
+.hero-text h1 span{
+    color:#20caff;
+}
+
+.hero-text h2{
+    font-size:21px;
+    font-weight:500;
+    color:#91c7ee;
+    margin-bottom:20px;
+}
+
+.hero-text p{
+    color:#a9c7df;
+    line-height:1.8;
+    max-width:570px;
+}
+
+.hero-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:13px;
+    margin-top:30px;
+}
+
+.btn{
+    border:1px solid #159eff;
+    color:white;
+    background:linear-gradient(135deg,#086bd1,#08b8ff);
+    padding:14px 20px;
+    border-radius:10px;
+    font-weight:700;
+    box-shadow:0 0 18px rgba(0,150,255,.16);
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 25px rgba(0,180,255,.4);
+}
+
+.btn.secondary{
+    background:#08214a;
+}
+
+.btn.green{
+    background:linear-gradient(135deg,#087d62,#11c98b);
+    border-color:#15e0a0;
+}
+
+.btn.red{
+    background:linear-gradient(135deg,#8b1830,#e32652);
+    border-color:#ff486e;
+}
+
+/* FORENSIC SCANNER */
+
+.scanner{
+    width:450px;
+    height:450px;
+    max-width:100%;
+    margin:auto;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.scan-ring{
+    position:absolute;
+    border:1px solid rgba(35,190,255,.5);
+    border-radius:50%;
+}
+
+.r1{
+    width:420px;
+    height:420px;
+}
+
+.r2{
+    width:350px;
+    height:350px;
+    border-style:dashed;
+    animation:spin 14s linear infinite;
+}
+
+.r3{
+    width:280px;
+    height:280px;
+    animation:spinReverse 9s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+@keyframes spinReverse{
+    to{transform:rotate(-360deg)}
+}
+
+.face-scan{
+    width:190px;
+    height:260px;
+    border:3px solid #40d8ff;
+    border-radius:48% 48% 45% 45%;
+    position:relative;
+    box-shadow:
+      0 0 30px #00aaff,
+      inset 0 0 30px rgba(0,180,255,.2);
+    background:linear-gradient(
+      90deg,
+      rgba(0,170,255,.08),
+      rgba(255,255,255,.05),
+      rgba(0,170,255,.08)
+    );
+}
+
+.face-scan::before{
+    content:"";
+    position:absolute;
+    width:15px;
+    height:15px;
+    border:2px solid #5be5ff;
+    border-radius:50%;
+    left:45px;
+    top:88px;
+    box-shadow:
+      80px 0 0 -2px #020b20,
+      80px 0 0 0 #5be5ff;
+}
+
+.face-scan::after{
+    content:"";
+    position:absolute;
+    left:25px;
+    right:25px;
+    top:150px;
+    height:2px;
+    background:#43ddff;
+    box-shadow:0 45px 0 rgba(50,220,255,.4);
+}
+
+.scan-line{
+    position:absolute;
+    width:260px;
+    height:3px;
+    background:#2de0ff;
+    box-shadow:0 0 20px #00d9ff;
+    animation:scan 3s ease-in-out infinite;
+}
+
+@keyframes scan{
+    0%,100%{transform:translateY(-125px)}
+    50%{transform:translateY(125px)}
+}
+
+.scan-label{
+    position:absolute;
+    color:#45dfff;
+    font-size:11px;
+    letter-spacing:1px;
+}
+
+.label1{top:45px;left:5px}
+.label2{bottom:45px;right:0}
+.label3{top:50%;right:-15px}
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,5,18,.88);
+    backdrop-filter:blur(12px);
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal-box{
+    width:430px;
+    border:1px solid #159eff;
+    border-radius:20px;
+    padding:32px;
+    background:#061a3b;
+    box-shadow:0 0 50px rgba(0,150,255,.25);
+}
+
+.modal-box h2{
+    margin-bottom:8px;
+}
+
+.modal-box p{
+    color:#8eb6d7;
+    margin-bottom:25px;
+}
+
+.input{
+    width:100%;
+    background:#03132d;
+    border:1px solid #176eb0;
+    border-radius:9px;
+    padding:14px;
+    color:white;
+    outline:none;
+    margin-bottom:14px;
+}
+
+.input:focus{
+    border-color:#25c9ff;
+    box-shadow:0 0 15px rgba(0,190,255,.2);
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+/* =========================================================
+   APPLICATION
+========================================================= */
+
+#app{
+    display:none;
+    min-height:100vh;
+    position:relative;
+    z-index:2;
+}
+
+.app-layout{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:245px;
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    padding:25px 15px;
+    background:linear-gradient(180deg,#061a3d,#020c20);
+    border-right:1px solid #12558e;
+    z-index:30;
+}
+
+.side-logo{
+    padding:0 12px 25px;
+    font-size:27px;
+    font-weight:900;
+    border-bottom:1px solid #14385e;
+    margin-bottom:20px;
+}
+
+.side-logo span{
+    color:#25c9ff;
+}
+
+.nav-btn{
+    width:100%;
+    text-align:left;
+    padding:13px 14px;
+    margin:3px 0;
+    border:1px solid transparent;
+    border-radius:8px;
+    color:#a9c9e5;
+    background:transparent;
+}
+
+.nav-btn:hover,
+.nav-btn.active{
+    color:white;
+    background:linear-gradient(90deg,#075caa,#073a73);
+    border-color:#1598e9;
+}
+
+.main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    min-height:100vh;
+}
+
+.topbar{
+    height:75px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 30px;
+    border-bottom:1px solid #124675;
+    background:rgba(3,14,37,.85);
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+
+.topbar-title{
+    font-size:20px;
+    font-weight:800;
+}
+
+.topbar-right{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.status{
+    padding:7px 12px;
+    border-radius:20px;
+    background:#073f36;
+    border:1px solid #0bc894;
+    color:#43e4b4;
+    font-size:12px;
+}
+
+.content{
+    padding:28px;
+}
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.page{
+    display:none;
+    animation:pageIn .3s ease;
+}
+
+.page.active{
+    display:block;
+}
+
+@keyframes pageIn{
+    from{opacity:0;transform:translateY(8px)}
+    to{opacity:1;transform:translateY(0)}
+}
+
+.page-title{
+    display:flex;
+    gap:15px;
+    align-items:center;
+    margin-bottom:22px;
+}
+
+.page-number{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#087fe1;
+    font-weight:900;
+    box-shadow:0 0 18px rgba(0,160,255,.4);
+}
+
+.page-title h1{
+    font-size:27px;
+}
+
+.page-title p{
+    color:#72b9df;
+    margin-top:4px;
+    font-size:13px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card{
+    background:
+      linear-gradient(145deg,rgba(9,39,82,.94),rgba(3,16,40,.94));
+    border:1px solid #146db1;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 0 25px rgba(0,100,255,.08);
+}
+
+.card h3{
+    color:#54d7ff;
+    margin-bottom:10px;
+}
+
+.grid{
+    display:grid;
+    gap:18px;
+}
+
+.grid2{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.grid3{
+    grid-template-columns:repeat(3,1fr);
+}
+
+.grid4{
+    grid-template-columns:repeat(4,1fr);
+}
+
+.stat{
+    font-size:28px;
+    font-weight:900;
+    margin:8px 0;
+}
+
+.muted{
+    color:#83a9c7;
+    font-size:13px;
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.case-banner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:24px;
+    border:1px solid #168fe1;
+    border-radius:15px;
+    background:
+      radial-gradient(circle at 90% 30%,rgba(0,180,255,.18),transparent 35%),
+      #061a3b;
+    margin-bottom:20px;
+}
+
+.case-id{
+    color:#31d5ff;
+    font-size:24px;
+    font-weight:900;
+}
+
+.quick-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:15px;
+}
+
+/* =========================================================
+   MEMORY CAPTURE
+========================================================= */
+
+.textarea{
+    width:100%;
+    min-height:160px;
+    resize:vertical;
+    background:#03132d;
+    color:white;
+    border:1px solid #176eb0;
+    border-radius:10px;
+    padding:15px;
+    font-size:15px;
+    line-height:1.6;
+    outline:none;
+}
+
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
+}
+
+.tab{
+    padding:9px 13px;
+    border:1px solid #176eb0;
+    background:#071c3e;
+    color:#a9cae3;
+    border-radius:8px;
+}
+
+.tab.active{
+    background:#087ed8;
+    color:white;
+}
+
+.attribute{
+    padding:15px;
+    border:1px solid #145c91;
+    border-radius:10px;
+    background:#061a37;
+}
+
+.attribute strong{
+    display:block;
+    color:#56d9ff;
+    margin-bottom:5px;
+}
+
+/* =========================================================
+   MEMORY VAULT
+========================================================= */
+
+.lock-box{
+    border-color:#00c894;
+}
+
+.lock{
+    font-size:48px;
+}
+
+.vault-image{
+    width:250px;
+    height:290px;
+    margin:auto;
+    border-radius:18px;
+    border:1px solid #22b7ef;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 50% 35%,#d9a07d 0 14%,transparent 15%),
+      radial-gradient(ellipse at 50% 48%,#c48669 0 23%,transparent 24%),
+      linear-gradient(#102c50,#051329);
+    position:relative;
+    overflow:hidden;
+}
+
+.vault-image::before{
+    content:"";
+    position:absolute;
+    width:130px;
+    height:160px;
+    top:45px;
+    border-radius:50% 50% 45% 45%;
+    background:
+      radial-gradient(circle at 35% 43%,#111 0 4%,transparent 5%),
+      radial-gradient(circle at 65% 43%,#111 0 4%,transparent 5%),
+      linear-gradient(#191919 0 20%,#d49a76 21% 100%);
+}
+
+/* =========================================================
+   INTERVIEW
+========================================================= */
+
+.chat{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    max-height:400px;
+    overflow:auto;
+}
+
+.message{
+    max-width:75%;
+    padding:12px 15px;
+    border-radius:12px;
+    line-height:1.5;
+}
+
+.ai{
+    background:#092a50;
+    border:1px solid #145c8f;
+    align-self:flex-start;
+}
+
+.witness{
+    background:#075e9b;
+    align-self:flex-end;
+}
+
+.chat-input{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.chat-input input{
+    flex:1;
+}
+
+/* =========================================================
+   COMPOSITE
+========================================================= */
+
+.face-version{
+    height:280px;
+    border-radius:14px;
+    background:
+      radial-gradient(ellipse at 50% 40%,#d99c79 0 21%,transparent 22%),
+      radial-gradient(ellipse at 50% 37%,#191919 0 27%,transparent 28%),
+      linear-gradient(145deg,#102c51,#06152e);
+    border:1px solid #208ec8;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding-bottom:18px;
+    position:relative;
+    overflow:hidden;
+}
+
+.face-version::after{
+    content:"FORENSIC COMPOSITE";
+    position:absolute;
+    bottom:8px;
+    font-size:9px;
+    color:#62d9ff;
+    letter-spacing:2px;
+}
+
+/* =========================================================
+   REFINEMENT
+========================================================= */
+
+.slider-row{
+    margin:20px 0;
+}
+
+.slider-row label{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:8px;
+}
+
+input[type=range]{
+    width:100%;
+}
+
+/* =========================================================
+   COLLISION
+========================================================= */
+
+.conflict{
+    border-color:#ff365b;
+    background:linear-gradient(145deg,#451329,#190a18);
+}
+
+.warning{
+    padding:18px;
+    border-radius:12px;
+    background:#68152b;
+    border:1px solid #ff4268;
+    color:#ffd7df;
+}
+
+/* =========================================================
+   FIREWALL
+========================================================= */
+
+.provenance{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.prov{
+    display:flex;
+    justify-content:space-between;
+    padding:13px;
+    border-radius:9px;
+    background:#061d3b;
+    border:1px solid #124e7d;
+}
+
+.confirmed{
+    color:#26df9e;
+}
+
+.assisted{
+    color:#ffd34d;
+}
+
+/* =========================================================
+   REAL 3D VIEWER
+========================================================= */
+
+.three-panel{
+    min-height:680px;
+    position:relative;
+    border:1px solid #197fd0;
+    border-radius:18px;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at center,
+      rgba(0,155,255,.18),
+      #020d25 65%);
+    box-shadow:
+      0 0 35px rgba(0,120,255,.18),
+      inset 0 0 60px rgba(0,100,255,.08);
+}
+
+#threeContainer{
+    position:absolute;
+    inset:0;
+}
+
+#threeContainer canvas{
+    display:block;
+    width:100%!important;
+    height:100%!important;
+}
+
+.three-toolbar{
+    position:absolute;
+    left:20px;
+    top:20px;
+    z-index:10;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.three-toolbar button,
+.three-buttons button{
+    border:1px solid #1dafff;
+    color:white;
+    background:linear-gradient(135deg,#076fc8,#08bfff);
+    padding:10px 15px;
+    border-radius:8px;
+    font-weight:700;
+}
+
+.three-info{
+    position:absolute;
+    top:90px;
+    right:20px;
+    width:270px;
+    z-index:10;
+}
+
+.visibility-card,
+.three-control-card{
+    background:rgba(3,20,48,.9);
+    border:1px solid #1685d0;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:12px;
+    backdrop-filter:blur(8px);
+}
+
+.visibility-card h3,
+.three-control-card h3{
+    color:#42d8ff;
+    margin-bottom:12px;
+}
+
+.visibility-card p{
+    margin:9px 0;
+    font-size:12px;
+    color:#c2d8eb;
+}
+
+.dot{
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    margin-right:7px;
+}
+
+.green-dot{
+    background:#20e990;
+    box-shadow:0 0 10px #20e990;
+}
+
+.yellow-dot{
+    background:#ffd23f;
+    box-shadow:0 0 10px #ffd23f;
+}
+
+.red-dot{
+    background:#ff3d5a;
+    box-shadow:0 0 10px #ff3d5a;
+}
+
+.three-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-top:12px;
+}
+
+/* =========================================================
+   MULTI WITNESS
+========================================================= */
+
+.witness-card{
+    text-align:center;
+}
+
+.witness-avatar{
+    width:80px;
+    height:80px;
+    margin:0 auto 12px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#d59b78,#182b4b);
+    border:2px solid #1ab4ed;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-wrap{
+    overflow:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #164365;
+    text-align:left;
+}
+
+th{
+    color:#4fd8ff;
+    background:#061b38;
+}
+
+.good{
+    color:#25df9e;
+}
+
+.medium{
+    color:#ffd64c;
+}
+
+/* =========================================================
+   REPORT
+========================================================= */
+
+.report-face{
+    width:300px;
+    height:360px;
+    border-radius:18px;
+    background:
+      radial-gradient(circle at 38% 43%,#111 0 3%,transparent 4%),
+      radial-gradient(circle at 62% 43%,#111 0 3%,transparent 4%),
+      radial-gradient(ellipse at 50% 45%,#d69a76 0 25%,transparent 26%),
+      radial-gradient(ellipse at 50% 28%,#151515 0 31%,transparent 32%),
+      linear-gradient(#0b2343,#030d20);
+    border:1px solid #159de8;
+    margin:auto;
+}
+
+/* =========================================================
+   AUDIT
+========================================================= */
+
+.audit-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 2fr 1fr;
+    gap:10px;
+    padding:12px;
+    border-bottom:1px solid #143c60;
+    color:#b5d2e8;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.security-strip{
+    margin-top:25px;
+    border-top:1px solid #164a75;
+    padding:15px;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:22px;
+    color:#82a8c4;
+    font-size:11px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:900px){
+
+    .landing-main{
+        grid-template-columns:1fr;
+    }
+
+    .hero-text h1{
+        font-size:42px;
+    }
+
+    .sidebar{
+        width:190px;
+    }
+
+    .main{
+        margin-left:190px;
+        width:calc(100% - 190px);
+    }
+
+    .grid3,
+    .grid4{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+@media(max-width:650px){
+
+    .sidebar{
+        display:none;
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+    }
+
+    .grid2,
+    .grid3,
+    .grid4{
+        grid-template-columns:1fr;
+    }
+
+    .landing-main{
+        padding:25px;
+    }
+
+    .three-info{
+        display:none;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     PAGE 1 — LANDING PAGE
+===================================================== -->
+
+<div id="landingPage">
+
+<div class="landing-shell">
+
+    <div class="landing-top">
+
+        <div class="logo">
+            SKETCH-<span>X</span>
+        </div>
+
+        <div class="top-label">
+            AI Forensic Composite & Witness Memory Intelligence Platform
+        </div>
+
+    </div>
+
+    <div class="landing-main">
+
+        <div class="hero-text">
+
+            <h1>
+                From Memory<br>
+                to <span>3D Composite.</span>
+            </h1>
+
+            <h2>
+                Preserve • Analyze • Reconstruct • Report
+            </h2>
+
+            <p>
+                SKETCH-X transforms witness descriptions into an
+                interactive forensic composite while preserving the
+                original memory, tracking changes, detecting conflicts,
+                and maintaining complete AI/human provenance.
+            </p>
+
+            <div class="hero-buttons">
+
+                <button class="btn" onclick="openLogin()">
+                    🔐 Investigator Login
+                </button>
+
+                <button class="btn secondary" onclick="openDemo()">
+                    ▶ View Demo Case
+                </button>
+
+                <button class="btn secondary" onclick="openAbout()">
+                    ℹ About SKETCH-X
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="scanner">
+
+            <div class="scan-ring r1"></div>
+            <div class="scan-ring r2"></div>
+            <div class="scan-ring r3"></div>
+
+            <div class="face-scan"></div>
+
+            <div class="scan-line"></div>
+
+            <div class="scan-label label1">
+                WITNESS MEMORY
+            </div>
+
+            <div class="scan-label label2">
+                AI 3D RECONSTRUCTION
+            </div>
+
+            <div class="scan-label label3">
+                FORENSIC COMPOSITE
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     LOGIN MODAL
+===================================================== -->
+
+<div id="loginModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <h2>Investigator Login</h2>
+
+        <p>
+            Secure access to SKETCH-X forensic case workspace.
+        </p>
+
+        <input
+            id="loginId"
+            class="input"
+            placeholder="Investigator ID"
+        >
+
+        <input
+            id="loginPassword"
+            class="input"
+            type="password"
+            placeholder="Password"
+        >
+
+        <div class="modal-actions">
+
+            <button class="btn" onclick="login()">
+                Login
+            </button>
+
+            <button class="btn secondary" onclick="closeModal('loginModal')">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DEMO MODAL
+===================================================== -->
+
+<div id="demoModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <h2>Demo Case</h2>
+
+        <p>
+            SKX-2026-001<br>
+            Robbery Case — Bengaluru
+        </p>
+
+        <button class="btn" onclick="enterApplication()">
+            Open Demo Case
+        </button>
+
+        <button
+            class="btn secondary"
+            onclick="closeModal('demoModal')"
+        >
+            Cancel
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ABOUT MODAL
+===================================================== -->
+
+<div id="aboutModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <h2>About SKETCH-X</h2>
+
+        <p>
+            SKETCH-X is an AI-assisted forensic composite platform
+            designed to preserve witness memory and transform it into
+            an auditable interactive 3D reconstruction.
+        </p>
+
+        <button
+            class="btn"
+            onclick="closeModal('aboutModal')"
+        >
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     APPLICATION
+===================================================== -->
+
+<div id="app">
+
+<div class="app-layout">
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="side-logo">
+        SKETCH-<span>X</span>
+    </div>
+
+    <button class="nav-btn active" onclick="showPage(2,this)">
+        🏠 Dashboard
+    </button>
+
+    <button class="nav-btn" onclick="showPage(3,this)">
+        🧠 Witness Memory
+    </button>
+
+    <button class="nav-btn" onclick="showPage(4,this)">
+        🔒 Memory Vault
+    </button>
+
+    <button class="nav-btn" onclick="showPage(5,this)">
+        🤖 AI Interview
+    </button>
+
+    <button class="nav-btn" onclick="showPage(6,this)">
+        👤 AI Composite
+    </button>
+
+    <button class="nav-btn" onclick="showPage(7,this)">
+        ✏️ Refinement
+    </button>
+
+    <button class="nav-btn" onclick="showPage(8,this)">
+        ⚠️ Collision Detector
+    </button>
+
+    <button class="nav-btn" onclick="showPage(9,this)">
+        🛡️ AI Firewall
+    </button>
+
+    <button class="nav-btn" onclick="showPage(10,this)">
+        🧊 3D Analysis
+    </button>
+
+    <button class="nav-btn" onclick="showPage(11,this)">
+        👥 Multi-Witness
+    </button>
+
+    <button class="nav-btn" onclick="showPage(12,this)">
+        📄 Reports
+    </button>
+
+    <button class="nav-btn" onclick="showAudit(this)">
+        📋 Audit Log
+    </button>
+
+    <button
+        class="nav-btn"
+        style="margin-top:25px;color:#ff7892"
+        onclick="logout()"
+    >
+        🚪 Logout
+    </button>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+<header class="topbar">
+
+    <div class="topbar-title">
+        SKETCH-X / <span id="currentPageName">Case Dashboard</span>
+    </div>
+
+    <div class="topbar-right">
+
+        <span class="status">
+            ● SYSTEM ACTIVE
+        </span>
+
+        <span class="muted">
+            Investigator
+        </span>
+
+    </div>
+
+</header>
+
+
+<div class="content">
+
+
+<!-- =====================================================
+     PAGE 2 — DASHBOARD
+===================================================== -->
+
+<section id="page2" class="page active">
+
+<div class="page-title">
+
+    <span class="page-number">2</span>
+
+    <div>
+        <h1>Investigator Login & Case Dashboard</h1>
+        <p>Secure forensic investigation workspace.</p>
+    </div>
+
+</div>
+
+<div class="case-banner">
+
+    <div>
+
+        <div class="muted">ACTIVE CASE</div>
+
+        <div class="case-id">
+            SKX-2026-001
+        </div>
+
+        <p class="muted">
+            Robbery Case • Bengaluru • 25-10-2026
+        </p>
+
+    </div>
+
+    <span class="status">ACTIVE</span>
+
+</div>
+
+<div class="grid grid4">
+
+    <div class="card">
+        <h3>Witnesses</h3>
+        <div class="stat">3</div>
+        <div class="muted">Independent memories</div>
+    </div>
+
+    <div class="card">
+        <h3>Composite Versions</h3>
+        <div class="stat">V3</div>
+        <div class="muted">Current version</div>
+    </div>
+
+    <div class="card">
+        <h3>Audit Events</h3>
+        <div class="stat" id="auditCount">0</div>
+        <div class="muted">Recorded actions</div>
+    </div>
+
+    <div class="card">
+        <h3>3D Model</h3>
+        <div class="stat">READY</div>
+        <div class="muted">Interactive reconstruction</div>
+    </div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+    <h3>Quick Actions</h3>
+
+    <div class="quick-actions">
+
+        <button class="btn" onclick="showPage(3)">
+            Start Witness Interview
+        </button>
+
+        <button class="btn" onclick="showPage(6)">
+            View Composites
+        </button>
+
+        <button class="btn" onclick="showPage(10)">
+            Open 3D Analysis
+        </button>
+
+        <button class="btn green" onclick="showPage(12)">
+            Generate Report
+        </button>
+
+    </div>
+
+</div>
+
+<div class="security-strip">
+
+    🔐 Role-Based Access Control
+    🔒 Encryption
+    🛡️ Tamper-Evident Audit Log
+    📁 Case-Level Permissions
+    ⚖️ Bias Monitoring
+    🤖 AI / Human Attribution
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 3 — WITNESS MEMORY
+===================================================== -->
+
+<section id="page3" class="page">
+
+<div class="page-title">
+
+<span class="page-number">3</span>
+
+<div>
+<h1>Witness Memory Capture</h1>
+<p>Capture the first recollection before memory changes.</p>
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="tabs">
+
+<button class="tab active">📝 Text Input</button>
+<button class="tab">🎤 Voice Input</button>
+<button class="tab">🖼 Image Input</button>
+
+</div>
+
+<textarea
+id="memoryInput"
+class="textarea"
+placeholder="Describe what the witness remembers..."
+>Male, around 30 years old, oval face, thick eyebrows, broad nose, short black hair, no beard.</textarea>
+
+<br><br>
+
+<button class="btn" onclick="extractMemory()">
+🧠 Extract Features
+</button>
+
+<button class="btn green" onclick="saveMemory()">
+🔒 Save Original Memory
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>Extracted Attributes (AI)</h3>
+
+<div class="grid grid4">
+
+<div class="attribute">
+<strong>Age</strong>
+30 years
+</div>
+
+<div class="attribute">
+<strong>Face Shape</strong>
+Oval
+</div>
+
+<div class="attribute">
+<strong>Eyebrows</strong>
+Thick
+</div>
+
+<div class="attribute">
+<strong>Nose</strong>
+Broad
+</div>
+
+<div class="attribute">
+<strong>Hair</strong>
+Short / Black
+</div>
+
+<div class="attribute">
+<strong>Beard</strong>
+None
+</div>
+
+<div class="attribute">
+<strong>Confidence</strong>
+Medium-High
+</div>
+
+<div class="attribute">
+<strong>Source</strong>
+Witness
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 4 — MEMORY VAULT
+===================================================== -->
+
+<section id="page4" class="page">
+
+<div class="page-title">
+
+<span class="page-number">4</span>
+
+<div>
+<h1>Original Memory Vault (Locked)</h1>
+<p>Immutable first witness recollection.</p>
+</div>
+
+</div>
+
+<div class="card lock-box">
+
+<div style="display:flex;gap:15px;align-items:center">
+
+<div class="lock">🔒</div>
+
+<div>
+<h2>Original Memory Vault</h2>
+<span class="status">LOCKED</span>
+<p class="muted">
+The witness's first recollection is preserved and cannot be overwritten.
+</p>
+</div>
+
+</div>
+
+<br>
+
+<div class="grid grid2">
+
+<div class="vault-image"></div>
+
+<div>
+
+<div class="grid grid2">
+
+<div class="attribute">
+<strong>Age</strong>
+30 years
+</div>
+
+<div class="attribute">
+<strong>Face Shape</strong>
+Oval
+</div>
+
+<div class="attribute">
+<strong>Eyebrows</strong>
+Thick
+</div>
+
+<div class="attribute">
+<strong>Nose</strong>
+Broad
+</div>
+
+<div class="attribute">
+<strong>Hair</strong>
+Short / Black
+</div>
+
+<div class="attribute">
+<strong>Beard</strong>
+None
+</div>
+
+</div>
+
+<br>
+
+<div class="warning"
+style="background:#063b32;border-color:#12c99a;color:#aaffdf">
+
+✓ Original timestamp preserved.<br>
+✓ Future modifications stored as new versions.<br>
+✓ Original memory cannot be silently overwritten.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 5 — AI INTERVIEW
+===================================================== -->
+
+<section id="page5" class="page">
+
+<div class="page-title">
+
+<span class="page-number">5</span>
+
+<div>
+<h1>Adaptive AI Interview</h1>
+<p>AI asks targeted non-leading questions.</p>
+</div>
+
+</div>
+
+<div class="grid grid2">
+
+<div class="card">
+
+<div id="chatBox" class="chat">
+
+<div class="message ai">
+Do you remember the eye shape?
+</div>
+
+<div class="message witness">
+Slightly narrow.
+</div>
+
+<div class="message ai">
+Was the jaw broad or narrow?
+</div>
+
+<div class="message witness">
+More narrow.
+</div>
+
+<div class="message ai">
+Was the face round, oval, or long?
+</div>
+
+</div>
+
+<div class="chat-input">
+
+<input
+id="chatInput"
+class="input"
+placeholder="Type witness answer..."
+>
+
+<button class="btn" onclick="sendMessage()">
+Send
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Memory DNA (Updated)</h3>
+
+<div class="attribute">
+<strong>Age</strong>
+30 years
+</div>
+
+<br>
+
+<div class="attribute">
+<strong>Face</strong>
+Oval
+</div>
+
+<br>
+
+<div class="attribute">
+<strong>Eyes</strong>
+Slightly narrow
+</div>
+
+<br>
+
+<div class="attribute">
+<strong>Jaw</strong>
+Narrow
+</div>
+
+<br>
+
+<div class="attribute">
+<strong>Memory Stability</strong>
+72%
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 6 — COMPOSITE
+===================================================== -->
+
+<section id="page6" class="page">
+
+<div class="page-title">
+
+<span class="page-number">6</span>
+
+<div>
+<h1>AI Composite Generation — V1, V2, V3</h1>
+<p>Progressive forensic composite reconstruction.</p>
+</div>
+
+</div>
+
+<div class="grid grid3">
+
+<div class="card">
+
+<h3>V1 — Initial</h3>
+
+<div class="face-version"></div>
+
+<p class="muted">Original memory</p>
+
+</div>
+
+<div class="card">
+
+<h3>V2 — Jaw Refined</h3>
+
+<div class="face-version"></div>
+
+<p class="muted">Interview update</p>
+
+</div>
+
+<div class="card">
+
+<h3>V3 — Eyes Refined</h3>
+
+<div class="face-version"></div>
+
+<p class="muted">Current composite</p>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<button class="btn" onclick="alert('Composite regeneration started')">
+↻ Regenerate
+</button>
+
+<button class="btn" onclick="showPage(7)">
+Adjust Features
+</button>
+
+<button class="btn" onclick="alert('Version comparison opened')">
+Compare Versions
+</button>
+
+<button class="btn" onclick="showPage(10)">
+🧊 3D Reconstruction
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 7 — REFINEMENT
+===================================================== -->
+
+<section id="page7" class="page">
+
+<div class="page-title">
+
+<span class="page-number">7</span>
+
+<div>
+<h1>Refinement Engine</h1>
+<p>Controlled feature-level reconstruction.</p>
+</div>
+
+</div>
+
+<div class="grid grid2">
+
+<div class="card">
+
+<h3>Witness Refinement</h3>
+
+<div class="message witness">
+Make the jaw slightly narrower.
+</div>
+
+<br>
+
+<div class="message witness">
+Make the eyes slightly smaller.
+</div>
+
+<br>
+
+<div class="message ai">
+Can you add a light beard?
+</div>
+
+<br>
+
+<div class="warning">
+⚠ This conflicts with the original memory.
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Feature Controls</h3>
+
+<div class="slider-row">
+
+<label>
+Jaw Width
+<span id="jawValue">50%</span>
+</label>
+
+<input
+type="range"
+min="20"
+max="80"
+value="50"
+oninput="jawValue.innerText=this.value+'%'"
+>
+
+</div>
+
+<div class="slider-row">
+
+<label>
+Eye Size
+<span id="eyeValue">50%</span>
+</label>
+
+<input
+type="range"
+min="20"
+max="80"
+value="50"
+oninput="eyeValue.innerText=this.value+'%'"
+>
+
+</div>
+
+<div class="slider-row">
+
+<label>
+Nose Width
+<span id="noseValue">50%</span>
+</label>
+
+<input
+type="range"
+min="20"
+max="80"
+value="50"
+oninput="noseValue.innerText=this.value+'%'"
+>
+
+</div>
+
+<button class="btn green" onclick="alert('New composite version V4 created')">
+Create New Version
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 8 — COLLISION
+===================================================== -->
+
+<section id="page8" class="page">
+
+<div class="page-title">
+
+<span class="page-number">8</span>
+
+<div>
+<h1>Memory Collision Detector</h1>
+<p>Detect contradictions between original and later memory.</p>
+</div>
+
+</div>
+
+<div class="grid grid2">
+
+<div class="card">
+
+<h3>Original Memory</h3>
+
+<div class="attribute">
+<strong>Age</strong>
+30 years
+</div>
+
+<div class="attribute">
+<strong>Face Shape</strong>
+Oval
+</div>
+
+<div class="attribute">
+<strong>Eyebrows</strong>
+Thick
+</div>
+
+<div class="attribute">
+<strong>Nose</strong>
+Broad
+</div>
+
+<div class="attribute">
+<strong>Beard</strong>
+None
+</div>
+
+</div>
+
+<div class="card conflict">
+
+<h3>Later Memory</h3>
+
+<div class="attribute">
+<strong>Age</strong>
+30 years
+</div>
+
+<div class="attribute">
+<strong>Face Shape</strong>
+Oval
+</div>
+
+<div class="attribute">
+<strong>Eyebrows</strong>
+Thick
+</div>
+
+<div class="attribute">
+<strong>Nose</strong>
+Broad
+</div>
+
+<div class="attribute">
+<strong>Beard</strong>
+Light Beard
+</div>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="warning">
+
+<h3>⚠ MEMORY COLLISION DETECTED</h3>
+
+<p>
+Original memory: <b>No beard</b>
+</p>
+
+<p>
+Later memory: <b>Light beard</b>
+</p>
+
+<p>
+Status: <b>CONFLICTING</b>
+</p>
+
+<br>
+
+<button class="btn secondary"
+onclick="alert('Conflict stored as a new memory version')">
+Track as New Version
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 9 — FIREWALL
+===================================================== -->
+
+<section id="page9" class="page">
+
+<div class="page-title">
+
+<span class="page-number">9</span>
+
+<div>
+<h1>AI Memory Firewall & Feature Provenance</h1>
+<p>Separate witness information from AI-assisted reconstruction.</p>
+</div>
+
+</div>
+
+<div class="grid grid2">
+
+<div class="card">
+
+<h3>Composite Feature Map</h3>
+
+<div class="report-face"></div>
+
+</div>
+
+<div class="card">
+
+<h3>Feature Provenance</h3>
+
+<div class="provenance">
+
+<div class="prov">
+<span>Hair</span>
+<span class="confirmed">Witness</span>
+</div>
+
+<div class="prov">
+<span>Eyes</span>
+<span class="confirmed">Witness</span>
+</div>
+
+<div class="prov">
+<span>Nose</span>
+<span class="confirmed">Witness</span>
+</div>
+
+<div class="prov">
+<span>Mouth</span>
+<span class="assisted">AI-Assisted</span>
+</div>
+
+<div class="prov">
+<span>Jaw</span>
+<span class="assisted">AI-Assisted</span>
+</div>
+
+<div class="prov">
+<span>Beard</span>
+<span class="assisted">AI-Assisted</span>
+</div>
+
+</div>
+
+<br>
+
+<div class="warning"
+style="background:#063b32;border-color:#13c895;color:#baffeb">
+
+🛡 AI Memory Firewall Active<br><br>
+
+Unknown features are never silently treated as witness facts.
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 10 — REAL INTERACTIVE 3D
+===================================================== -->
+
+<section id="page10" class="page">
+
+<div class="page-title">
+
+<span class="page-number">10</span>
+
+<div>
+<h1>3D Memory Visibility & Reconstruction</h1>
+<p>Interactive 3D forensic facial reconstruction prototype.</p>
+</div>
+
+</div>
+
+<div class="three-panel">
+
+<div class="three-toolbar">
+
+<button onclick="rotate3D(-20)">
+↶ Left
+</button>
+
+<button onclick="rotate3D(20)">
+Right ↷
+</button>
+
+<button onclick="set3DView(0)">
+Front
+</button>
+
+<button onclick="set3DView(45)">
+45°
+</button>
+
+<button onclick="set3DView(90)">
+Side
+</button>
+
+<button onclick="reset3D()">
+Reset
+</button>
+
+</div>
+
+<div id="threeContainer"></div>
+
+<div class="three-info">
+
+<div class="visibility-card">
+
+<h3>Memory Visibility</h3>
+
+<p>
+<span class="dot green-dot"></span>
+Clearly Visible — Remembered
+</p>
+
+<p>
+<span class="dot yellow-dot"></span>
+Partially Visible — Uncertain
+</p>
+
+<p>
+<span class="dot red-dot"></span>
+Not Visible — Occluded
+</p>
+
+</div>
+
+<div class="three-control-card">
+
+<h3>3D View</h3>
+
+<p class="muted">
+Rotate the reconstructed face to inspect different viewpoints.
+</p>
+
+<div class="three-buttons">
+
+<button onclick="set3DView(0)">
+Front
+</button>
+
+<button onclick="set3DView(45)">
+45°
+</button>
+
+<button onclick="set3DView(90)">
+Side
+</button>
+
+</div>
+
+<br>
+
+<button
+class="btn green"
+onclick="alert('3D Memory Zone analysis complete')"
+>
+Analyze Memory Zones
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 11 — MULTI WITNESS
+===================================================== -->
+
+<section id="page11" class="page">
+
+<div class="page-title">
+
+<span class="page-number">11</span>
+
+<div>
+<h1>Multi-Witness Intelligence</h1>
+<p>Compare independent witness memories without overwriting them.</p>
+</div>
+
+</div>
+
+<div class="grid grid3">
+
+<div class="card witness-card">
+
+<div class="witness-avatar"></div>
+
+<h3>Witness A</h3>
+
+<p class="good">
+High Agreement
+</p>
+
+<p class="muted">
+Oval face<br>
+Thick eyebrows<br>
+Broad nose<br>
+No beard
+</p>
+
+</div>
+
+<div class="card witness-card">
+
+<div class="witness-avatar"></div>
+
+<h3>Witness B</h3>
+
+<p class="medium">
+Moderate Agreement
+</p>
+
+<p class="muted">
+Oval face<br>
+Thick eyebrows<br>
+Broad nose<br>
+Light beard
+</p>
+
+</div>
+
+<div class="card witness-card">
+
+<div class="witness-avatar"></div>
+
+<h3>Witness C</h3>
+
+<p class="medium">
+Moderate Agreement
+</p>
+
+<p class="muted">
+Oval face<br>
+Medium eyebrows<br>
+Broad nose<br>
+No beard
+</p>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>Witness Comparison</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Feature</th>
+<th>Witness A</th>
+<th>Witness B</th>
+<th>Witness C</th>
+<th>Consensus</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Hair</td>
+<td class="good">●</td>
+<td class="good">●</td>
+<td class="good">●</td>
+<td>Strong</td>
+</tr>
+
+<tr>
+<td>Eyes</td>
+<td class="good">●</td>
+<td class="medium">●</td>
+<td class="good">●</td>
+<td>Moderate</td>
+</tr>
+
+<tr>
+<td>Nose</td>
+<td class="good">●</td>
+<td class="good">●</td>
+<td class="good">●</td>
+<td>Strong</td>
+</tr>
+
+<tr>
+<td>Beard</td>
+<td class="good">●</td>
+<td class="medium">●</td>
+<td class="good">●</td>
+<td>Moderate</td>
+</tr>
+
+<tr>
+<td>Jaw</td>
+<td class="good">●</td>
+<td class="medium">●</td>
+<td class="medium">●</td>
+<td>Moderate</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PAGE 12 — REPORT
+===================================================== -->
+
+<section id="page12" class="page">
+
+<div class="page-title">
+
+<span class="page-number">12</span>
+
+<div>
+<h1>Final Composite, Report & Audit Log</h1>
+<p>Final forensic output and traceability.</p>
+</div>
+
+</div>
+
+<div class="grid grid2">
+
+<div class="card">
+
+<h3>Final 3D Forensic Composite</h3>
+
+<div class="report-face"></div>
+
+<br>
+
+<div style="text-align:center">
+
+<button class="btn" onclick="showPage(10)">
+Open 3D Model
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Export Options</h3>
+
+<br>
+
+<button class="btn" onclick="downloadReport()">
+⬇ 2D Composite PNG
+</button>
+
+<br><br>
+
+<button class="btn" onclick="download3DInfo()">
+⬇ 3D Model OBJ
+</button>
+
+<br><br>
+
+<button class="btn" onclick="downloadReport()">
+⬇ Forensic Case Report
+</button>
+
+<br><br>
+
+<button class="btn" onclick="downloadReport()">
+⬇ Memory Timeline
+</button>
+
+<br><br>
+
+<button class="btn" onclick="downloadReport()">
+⬇ Uncertainty Report
+</button>
+
+<br><br>
+
+<button class="btn green" onclick="downloadReport()">
+⬇ One-Click Download
+</button>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>Audit Log</h3>
+
+<div id="auditLogContainer">
+
+<div class="audit-row">
+<span>25-10-2026</span>
+<span>Investigator</span>
+<span>Case created</span>
+<span class="good">SUCCESS</span>
+</div>
+
+<div class="audit-row">
+<span>25-10-2026</span>
+<span>Witness</span>
+<span>Original memory captured</span>
+<span class="good">LOCKED</span>
+</div>
+
+<div class="audit-row">
+<span>25-10-2026</span>
+<span>AI</span>
+<span>Composite V1 generated</span>
+<span class="good">SUCCESS</span>
+</div>
+
+<div class="audit-row">
+<span>25-10-2026</span>
+<span>AI</span>
+<span>Memory collision detected</span>
+<span style="color:#ff5475">WARNING</span>
+</div>
+
+</div>
+
+</div>
+
+<div class="security-strip">
+
+🔐 Role-Based Access Control
+🔒 Encryption In Transit & At Rest
+🛡 Tamper-Evident Audit Log
+📁 Case-Level Permissions
+⚖ Bias Monitoring
+🤖 AI/Human Attribution
+
+</div>
+
+</section>
+
+
+</div>
+</main>
+
+</div>
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let auditEvents = 0;
+
+let currentPage = 2;
+
+let scene3D = null;
+let camera3D = null;
+let renderer3D = null;
+let faceGroup3D = null;
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function openLogin(){
+
+    document
+        .getElementById("loginModal")
+        .classList.remove("hidden");
+
+}
+
+function openDemo(){
+
+    document
+        .getElementById("demoModal")
+        .classList.remove("hidden");
+
+}
+
+function openAbout(){
+
+    document
+        .getElementById("aboutModal")
+        .classList.remove("hidden");
+
+}
+
+function closeModal(id){
+
+    document
+        .getElementById(id)
+        .classList.add("hidden");
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function login(){
+
+    const id =
+        document.getElementById("loginId").value.trim();
+
+    const password =
+        document.getElementById("loginPassword").value.trim();
+
+    if(!id || !password){
+
+        alert("Please enter Investigator ID and Password.");
+
+        return;
+    }
+
+    closeModal("loginModal");
+
+    enterApplication();
+
+}
+
+
+/* =========================================================
+   ENTER APP
+========================================================= */
+
+function enterApplication(){
+
+    closeModal("demoModal");
+
+    document.getElementById("landingPage").style.display =
+        "none";
+
+    document.getElementById("app").style.display =
+        "block";
+
+    addAudit("Investigator", "Login / Demo Case opened");
+
+    setTimeout(init3D,300);
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout(){
+
+    if(confirm("Logout from SKETCH-X?")){
+
+        document.getElementById("app").style.display =
+            "none";
+
+        document.getElementById("landingPage").style.display =
+            "flex";
+
+    }
+
+}
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+const pageNames = {
+
+    2:"Case Dashboard",
+    3:"Witness Memory Capture",
+    4:"Original Memory Vault",
+    5:"Adaptive AI Interview",
+    6:"AI Composite Generation",
+    7:"Refinement Engine",
+    8:"Memory Collision Detector",
+    9:"AI Memory Firewall",
+    10:"3D Memory Visibility & Reconstruction",
+    11:"Multi-Witness Intelligence",
+    12:"Final Composite & Report"
+
+};
+
+function showPage(number, button){
+
+    document
+        .querySelectorAll(".page")
+        .forEach(p => p.classList.remove("active"));
+
+    const page =
+        document.getElementById("page"+number);
+
+    if(page){
+
+        page.classList.add("active");
+
+        currentPage = number;
+
+        document.getElementById(
+            "currentPageName"
+        ).innerText = pageNames[number] || "SKETCH-X";
+
+    }
+
+    if(button){
+
+        document
+            .querySelectorAll(".nav-btn")
+            .forEach(b => b.classList.remove("active"));
+
+        button.classList.add("active");
+
+    }
+
+    if(number === 10){
+
+        setTimeout(init3D,150);
+
+    }
+
+    addAudit(
+        "Investigator",
+        "Opened Page "+number
+    );
+
+}
+
+
+/* =========================================================
+   AUDIT
+========================================================= */
+
+function addAudit(user, action){
+
+    auditEvents++;
+
+    const count =
+        document.getElementById("auditCount");
+
+    if(count){
+        count.innerText = auditEvents;
+    }
+
+}
+
+
+/* =========================================================
+   MEMORY
+========================================================= */
+
+function saveMemory(){
+
+    const text =
+        document.getElementById("memoryInput").value;
+
+    localStorage.setItem(
+        "sketchx_original_memory",
+        text
+    );
+
+    addAudit(
+        "Witness",
+        "Original memory saved and locked"
+    );
+
+    alert(
+        "Original Memory Vault saved successfully.\n\n"+
+        "This memory is now preserved as the first recollection."
+    );
+
+}
+
+
+function extractMemory(){
+
+    addAudit(
+        "AI",
+        "Facial attributes extracted"
+    );
+
+    alert(
+        "Features extracted:\n\n"+
+        "Age: 30 years\n"+
+        "Face: Oval\n"+
+        "Eyebrows: Thick\n"+
+        "Nose: Broad\n"+
+        "Hair: Short / Black\n"+
+        "Beard: None"
+    );
+
+}
+
+
+/* =========================================================
+   AI CHAT
+========================================================= */
+
+function sendMessage(){
+
+    const input =
+        document.getElementById("chatInput");
+
+    const text =
+        input.value.trim();
+
+    if(!text) return;
+
+    const chat =
+        document.getElementById("chatBox");
+
+    const user =
+        document.createElement("div");
+
+    user.className =
+        "message witness";
+
+    user.innerText =
+        text;
+
+    chat.appendChild(user);
+
+    setTimeout(()=>{
+
+        const ai =
+            document.createElement("div");
+
+        ai.className =
+            "message ai";
+
+        ai.innerText =
+            "Thank you. I have recorded that as a new memory detail without overwriting the original recollection.";
+
+        chat.appendChild(ai);
+
+        chat.scrollTop =
+            chat.scrollHeight;
+
+    },400);
+
+    input.value = "";
+
+    addAudit(
+        "Witness",
+        "Answered adaptive AI interview"
+    );
+
+}
+
+
+/* =========================================================
+   3D FACE
+========================================================= */
+
+function init3D(){
+
+    const container =
+        document.getElementById("threeContainer");
+
+    if(!container){
+
+        return;
+
+    }
+
+    /* Don't create duplicate renderer */
+
+    if(renderer3D){
+
+        resize3D();
+
+        return;
+
+    }
+
+    scene3D =
+        new THREE.Scene();
+
+    scene3D.background =
+        new THREE.Color(0x03142d);
+
+
+    /* CAMERA */
+
+    camera3D =
+        new THREE.PerspectiveCamera(
+            45,
+            container.clientWidth /
+            container.clientHeight,
+            0.1,
+            100
+        );
+
+    camera3D.position.set(
+        0,
+        0,
+        6
+    );
+
+
+    /* RENDERER */
+
+    renderer3D =
+        new THREE.WebGLRenderer({
+            antialias:true,
+            alpha:true
+        });
+
+    renderer3D.setPixelRatio(
+        Math.min(
+            window.devicePixelRatio,
+            2
+        )
+    );
+
+    renderer3D.setSize(
+        container.clientWidth,
+        container.clientHeight
+    );
+
+    container.innerHTML = "";
+
+    container.appendChild(
+        renderer3D.domElement
+    );
+
+
+    /* LIGHT */
+
+    const ambient =
+        new THREE.AmbientLight(
+            0xffffff,
+            2.2
+        );
+
+    scene3D.add(ambient);
+
+
+    const frontLight =
+        new THREE.DirectionalLight(
+            0x66ddff,
+            3
+        );
+
+    frontLight.position.set(
+        3,
+        4,
+        6
+    );
+
+    scene3D.add(frontLight);
+
+
+    const sideLight =
+        new THREE.DirectionalLight(
+            0x3377ff,
+            2
+        );
+
+    sideLight.position.set(
+        -5,
+        1,
+        3
+    );
+
+    scene3D.add(sideLight);
+
+
+    /* FACE GROUP */
+
+    faceGroup3D =
+        new THREE.Group();
+
+    scene3D.add(
+        faceGroup3D
+    );
+
+
+    /* HEAD */
+
+    const headGeometry =
+        new THREE.SphereGeometry(
+            1.5,
+            64,
+            64
+        );
+
+    headGeometry.scale(
+        .78,
+        1.05,
+        .82
+    );
+
+
+    const skin =
+        new THREE.MeshStandardMaterial({
+
+            color:0xd49a76,
+
+            roughness:.72,
+
+            metalness:.02
+
+        });
+
+
+    const head =
+        new THREE.Mesh(
+            headGeometry,
+            skin
+        );
+
+    faceGroup3D.add(head);
+
+
+    /* EYES */
+
+    createEye(-.48,.35);
+    createEye(.48,.35);
+
+
+    /* NOSE */
+
+    const noseGeometry =
+        new THREE.ConeGeometry(
+            .18,
+            .65,
+            32
+        );
+
+    const noseMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0xc28668,
+            roughness:.7
+        });
+
+    const nose =
+        new THREE.Mesh(
+            noseGeometry,
+            noseMaterial
+        );
+
+    nose.rotation.x =
+        Math.PI/2;
+
+    nose.position.set(
+        0,
+        0,
+        1.22
+    );
+
+    faceGroup3D.add(nose);
+
+
+    /* MOUTH */
+
+    const mouthGeometry =
+        new THREE.TorusGeometry(
+            .22,
+            .035,
+            16,
+            40,
+            Math.PI
+        );
+
+    const mouthMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x641e29
+        });
+
+    const mouth =
+        new THREE.Mesh(
+            mouthGeometry,
+            mouthMaterial
+        );
+
+    mouth.position.set(
+        0,
+        -.55,
+        1.16
+    );
+
+    mouth.rotation.x =
+        Math.PI;
+
+    faceGroup3D.add(mouth);
+
+
+    /* EARS */
+
+    createEar(-1.2);
+    createEar(1.2);
+
+
+    /* HAIR */
+
+    const hairGeometry =
+        new THREE.SphereGeometry(
+            1.57,
+            64,
+            32,
+            0,
+            Math.PI*2,
+            0,
+            Math.PI*.46
+        );
+
+    hairGeometry.scale(
+        .80,
+        1,
+        .85
+    );
+
+    const hairMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x151515,
+            roughness:.9
+        });
+
+    const hair =
+        new THREE.Mesh(
+            hairGeometry,
+            hairMaterial
+        );
+
+    hair.position.y =
+        .35;
+
+    faceGroup3D.add(hair);
+
+
+    /* FORENSIC GRID */
+
+    const grid =
+        new THREE.GridHelper(
+            8,
+            20,
+            0x168cff,
+            0x082f5d
+        );
+
+    grid.rotation.x =
+        Math.PI/2;
+
+    grid.position.z =
+        -1.8;
+
+    grid.material.opacity =
+        .22;
+
+    grid.material.transparent =
+        true;
+
+    scene3D.add(grid);
+
+
+    /* VISIBILITY ZONES */
+
+    createVisibilityZone(
+        0.85,
+        .8,
+        0x20e990
+    );
+
+    createVisibilityZone(
+        -.85,
+        .8,
+        0xffd43f
+    );
+
+    createVisibilityZone(
+        0,
+        -.9,
+        0xff3d5a
+    );
+
+
+    animate3D();
+
+    window.addEventListener(
+        "resize",
+        resize3D
+    );
+
+}
+
+
+function createEye(x,y){
+
+    const eyeGeometry =
+        new THREE.SphereGeometry(
+            .16,
+            32,
+            32
+        );
+
+    const eyeMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0xffffff
+        });
+
+    const eye =
+        new THREE.Mesh(
+            eyeGeometry,
+            eyeMaterial
+        );
+
+    eye.position.set(
+        x,
+        y,
+        1.16
+    );
+
+    faceGroup3D.add(eye);
+
+
+    const pupilGeometry =
+        new THREE.SphereGeometry(
+            .07,
+            24,
+            24
+        );
+
+    const pupilMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x111111
+        });
+
+    const pupil =
+        new THREE.Mesh(
+            pupilGeometry,
+            pupilMaterial
+        );
+
+    pupil.position.set(
+        x,
+        y,
+        1.31
+    );
+
+    faceGroup3D.add(pupil);
+
+}
+
+
+function createEar(x){
+
+    const geometry =
+        new THREE.SphereGeometry(
+            .35,
+            32,
+            32
+        );
+
+    geometry.scale(
+        .45,
+        1,
+        .65
+    );
+
+    const material =
+        new THREE.MeshStandardMaterial({
+            color:0xc88d6d,
+            roughness:.8
+        });
+
+    const ear =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+    ear.position.x =
+        x;
+
+    faceGroup3D.add(
+        ear
+    );
+
+}
+
+
+function createVisibilityZone(
+    x,
+    y,
+    color
+){
+
+    const geometry =
+        new THREE.RingGeometry(
+            .08,
+            .14,
+            32
+        );
+
+    const material =
+        new THREE.MeshBasicMaterial({
+            color:color,
+            transparent:true,
+            opacity:.8,
+            side:THREE.DoubleSide
+        });
+
+    const ring =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+    ring.position.set(
+        x,
+        y,
+        1.38
+    );
+
+    faceGroup3D.add(
+        ring
+    );
+
+}
+
+
+/* =========================================================
+   3D CONTROLS
+========================================================= */
+
+function rotate3D(degrees){
+
+    if(!faceGroup3D) return;
+
+    faceGroup3D.rotation.y +=
+        THREE.MathUtils.degToRad(
+            degrees
+        );
+
+    addAudit(
+        "Investigator",
+        "3D model rotated"
+    );
+
+}
+
+
+function set3DView(degrees){
+
+    if(!faceGroup3D) return;
+
+    faceGroup3D.rotation.y =
+        THREE.MathUtils.degToRad(
+            degrees
+        );
+
+}
+
+
+function reset3D(){
+
+    if(!faceGroup3D) return;
+
+    faceGroup3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+}
+
+
+function animate3D(){
+
+    requestAnimationFrame(
+        animate3D
+    );
+
+    if(
+        renderer3D &&
+        scene3D &&
+        camera3D
+    ){
+
+        renderer3D.render(
+            scene3D,
+            camera3D
+        );
+
+    }
+
+}
+
+
+function resize3D(){
+
+    const container =
+        document.getElementById(
+            "threeContainer"
+        );
+
+    if(
+        !container ||
+        !renderer3D ||
+        !camera3D
+    ) return;
+
+    camera3D.aspect =
+        container.clientWidth /
+        container.clientHeight;
+
+    camera3D.updateProjectionMatrix();
+
+    renderer3D.setSize(
+        container.clientWidth,
+        container.clientHeight
+    );
+
+}
+
+
+/* =========================================================
+   REPORT DOWNLOAD
+========================================================= */
+
+function downloadReport(){
+
+    const report = {
+
+        project:"SKETCH-X",
+
+        caseId:"SKX-2026-001",
+
+        title:"AI Forensic Composite Case Report",
+
+        output:"Interactive 3D Forensic Composite",
+
+        memory:{
+            age:"30 years",
+            faceShape:"Oval",
+            eyebrows:"Thick",
+            nose:"Broad",
+            hair:"Short / Black",
+            beard:"None"
+        },
+
+        versions:[
+            "V1 Initial",
+            "V2 Jaw Refined",
+            "V3 Eyes Refined"
+        ],
+
+        collision:{
+            detected:true,
+            original:"No beard",
+            later:"Light beard"
+        },
+
+        provenance:{
+            hair:"Witness",
+            eyes:"Witness",
+            nose:"Witness",
+            mouth:"AI-Assisted",
+            jaw:"AI-Assisted"
+        },
+
+        disclaimer:
+            "Investigative decision-support prototype. "+
+            "Not autonomous identification or proof."
+
+    };
+
+    const blob =
+        new Blob(
+            [
+                JSON.stringify(
+                    report,
+                    null,
+                    2
+                )
+            ],
+            {
+                type:"application/json"
+            }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download =
+        "SKETCH-X_Forensic_Case_Report.json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    addAudit(
+        "Investigator",
+        "Forensic report exported"
+    );
+
+}
+
+
+function download3DInfo(){
+
+    const objText =
+`# SKETCH-X 3D FORENSIC COMPOSITE
+# Prototype reconstruction mesh
+# Case: SKX-2026-001
+
+o SKETCH_X_3D_HEAD
+
+# The live prototype uses WebGL geometry.
+# Production version can export the generated
+# forensic reconstruction as OBJ/GLB.
+`;
+
+    const blob =
+        new Blob(
+            [objText],
+            {
+                type:"text/plain"
+            }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download =
+        "SKETCH-X_3D_Forensic_Prototype.obj";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   AUDIT LOG BUTTON
+========================================================= */
+
+function showAudit(button){
+
+    showPage(
+        12,
+        button
+    );
+
+    addAudit(
+        "Investigator",
+        "Audit Log opened"
+    );
+
+}
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+window.addEventListener(
+    "load",
+    function(){
+
+        console.log(
+            "SKETCH-X loaded successfully."
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>

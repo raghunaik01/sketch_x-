@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>SKETCH-X | AI Forensic Composite Platform</title>
+
+<script type="module"
+src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js">
+</script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#061426;
+    color:#eaf7ff;
+    min-height:100vh;
+}
+
+button{
+    cursor:pointer;
+    border:0;
+}
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:245px;
+    background:#071b31;
+    border-right:1px solid #123c62;
+    padding:22px 14px;
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    z-index:10;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:900;
+    letter-spacing:2px;
+    color:#48e5ff;
+    padding:10px 14px 4px;
+}
+
+.logo-sub{
+    color:#7198b7;
+    font-size:10px;
+    padding:0 14px 20px;
+    letter-spacing:1px;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.nav button{
+    background:transparent;
+    color:#86a9c5;
+    text-align:left;
+    padding:12px 14px;
+    border-radius:9px;
+    font-size:13px;
+}
+
+.nav button:hover,
+.nav button.active{
+    background:#0c3456;
+    color:#50e8ff;
+}
+
+.main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    min-height:100vh;
+}
+
+.topbar{
+    height:68px;
+    border-bottom:1px solid #123c62;
+    background:#071a2e;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+}
+
+.top-title{
+    font-size:13px;
+    color:#91b3cd;
+}
+
+.status{
+    color:#50e8ff;
+    font-size:12px;
+}
+
+.page{
+    display:none;
+    padding:28px;
+    min-height:calc(100vh - 68px);
+}
+
+.page.active{
+    display:block;
+}
+
+h1{
+    font-size:29px;
+    margin-bottom:7px;
+}
+
+.subtitle{
+    color:#7fa4bf;
+    margin-bottom:25px;
+    font-size:14px;
+}
+
+.card{
+    background:#0a2139;
+    border:1px solid #16466d;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:18px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+
+.grid2{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:18px;
+}
+
+.btn{
+    background:#13c8e8;
+    color:#001522;
+    padding:11px 17px;
+    border-radius:8px;
+    font-weight:800;
+    margin:4px;
+}
+
+.btn.secondary{
+    background:#123c5c;
+    color:#bcecff;
+}
+
+.btn.warning{
+    background:#8c6425;
+    color:white;
+}
+
+.btn.danger{
+    background:#7b2838;
+    color:white;
+}
+
+.input,
+textarea{
+    width:100%;
+    background:#061526;
+    border:1px solid #245477;
+    color:#e9f8ff;
+    border-radius:8px;
+    padding:13px;
+    margin:8px 0 14px;
+    outline:none;
+}
+
+textarea{
+    min-height:150px;
+    resize:vertical;
+}
+
+.label{
+    color:#76a3bf;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.metric{
+    font-size:27px;
+    color:#51e7ff;
+    font-weight:900;
+}
+
+.small{
+    font-size:12px;
+    color:#789db8;
+}
+
+.feature{
+    padding:13px;
+    background:#08192c;
+    border:1px solid #16466d;
+    border-radius:9px;
+}
+
+.feature b{
+    display:block;
+    color:#4de4ff;
+    margin-bottom:5px;
+}
+
+.version{
+    border:1px solid #1d5b82;
+    border-radius:10px;
+    padding:14px;
+    background:#08192d;
+}
+
+.version img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    border-radius:8px;
+    background:#10273b;
+}
+
+.timeline{
+    border-left:2px solid #1abedc;
+    padding-left:18px;
+}
+
+.timeline-item{
+    margin-bottom:17px;
+}
+
+.green{
+    color:#42e39d;
+}
+
+.yellow{
+    color:#ffd05a;
+}
+
+.red{
+    color:#ff6075;
+}
+
+.blue{
+    color:#50e8ff;
+}
+
+/* LANDING */
+
+.landing{
+    min-height:calc(100vh - 68px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.hero{
+    width:min(1000px,95%);
+    text-align:center;
+}
+
+.scan{
+    width:300px;
+    height:300px;
+    margin:0 auto 25px;
+    border:2px solid #18cde8;
+    border-radius:50%;
+    position:relative;
+    background:
+      linear-gradient(90deg,transparent 49%,#16456a 50%,transparent 51%),
+      linear-gradient(0deg,transparent 49%,#16456a 50%,transparent 51%);
+    box-shadow:0 0 50px rgba(0,210,255,.18);
+}
+
+.scan:before{
+    content:"";
+    position:absolute;
+    left:78px;
+    top:30px;
+    width:140px;
+    height:230px;
+    border:3px solid #54eaff;
+    border-radius:48% 48% 43% 43%;
+}
+
+.scan:after{
+    content:"";
+    position:absolute;
+    left:35px;
+    right:35px;
+    top:145px;
+    height:3px;
+    background:#58efff;
+    box-shadow:0 0 20px #58efff;
+    animation:scan 2s infinite;
+}
+
+@keyframes scan{
+    0%{top:45px}
+    50%{top:240px}
+    100%{top:45px}
+}
+
+.hero h1{
+    font-size:50px;
+    color:#4ce7ff;
+    letter-spacing:5px;
+}
+
+.hero p{
+    color:#8eb0c7;
+    margin:12px auto 25px;
+    max-width:700px;
+}
+
+/* 3D */
+
+.model-card{
+    height:620px;
+    background:
+      radial-gradient(circle at center,#123b59 0,#07182b 55%,#04101e 100%);
+    border:1px solid #1a6388;
+    border-radius:15px;
+    overflow:hidden;
+    position:relative;
+}
+
+model-viewer{
+    width:100%;
+    height:100%;
+    background:transparent;
+}
+
+.model-label{
+    position:absolute;
+    top:15px;
+    left:15px;
+    z-index:2;
+    background:#071a2d;
+    border:1px solid #1a607f;
+    padding:9px 13px;
+    border-radius:7px;
+    color:#4ee7ff;
+    font-size:12px;
+}
+
+.zone{
+    position:absolute;
+    right:18px;
+    top:18px;
+    z-index:3;
+    background:#071a2d;
+    border:1px solid #1a607f;
+    padding:14px;
+    border-radius:9px;
+    font-size:12px;
+    line-height:1.8;
+}
+
+.zone span{
+    display:block;
+}
+
+.green-dot{color:#42e39d}
+.yellow-dot{color:#ffd05a}
+.red-dot{color:#ff6177}
+
+/* loading */
+
+.loader-page{
+    position:fixed;
+    inset:0;
+    background:#031020;
+    z-index:999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+
+.loader-page.hide{
+    display:none;
+}
+
+.loader-face{
+    width:180px;
+    height:230px;
+    border:3px solid #4de8ff;
+    border-radius:50% 50% 45% 45%;
+    position:relative;
+    box-shadow:0 0 35px rgba(50,220,255,.3);
+}
+
+.loader-face:after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    top:110px;
+    height:3px;
+    background:#4de8ff;
+    box-shadow:0 0 20px #4de8ff;
+    animation:scanface 1.5s infinite;
+}
+
+@keyframes scanface{
+    0%{top:20px}
+    100%{top:205px}
+}
+
+.loader-title{
+    margin-top:25px;
+    color:#4de8ff;
+    letter-spacing:3px;
+    font-weight:bold;
+}
+
+.loader-text{
+    color:#759bb5;
+    margin-top:9px;
+    font-size:12px;
+}
+
+/* table */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border-bottom:1px solid #173e5d;
+    padding:12px;
+    text-align:left;
+    font-size:12px;
+}
+
+th{
+    color:#52e6ff;
+}
+
+.footer-strip{
+    position:fixed;
+    bottom:0;
+    left:245px;
+    right:0;
+    height:31px;
+    background:#061426;
+    border-top:1px solid #123c62;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:25px;
+    font-size:10px;
+    color:#64869f;
+    z-index:5;
+}
+
+@media(max-width:900px){
+    .sidebar{
+        width:190px;
+    }
+
+    .main{
+        margin-left:190px;
+        width:calc(100% - 190px);
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .grid2{
+        grid-template-columns:1fr;
+    }
+
+    .footer-strip{
+        left:190px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOADING SCREEN -->
+
+<div class="loader-page" id="loader">
+    <div class="loader-face"></div>
+    <div class="loader-title">SKETCH-X FORENSIC AI</div>
+    <div class="loader-text">
+        WITNESS MEMORY • AI 3D RECONSTRUCTION • FORENSIC COMPOSITE
+    </div>
+</div>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<div class="logo">SKETCH-X</div>
+<div class="logo-sub">FORENSIC COMPOSITE INTELLIGENCE</div>
+
+<div class="nav">
+
+<button onclick="go(1)">01 · Platform Overview</button>
+<button onclick="go(2)">02 · Case Dashboard</button>
+<button onclick="go(3)">03 · Memory Capture</button>
+<button onclick="go(4)">04 · Original Memory Vault</button>
+<button onclick="go(5)">05 · Adaptive AI Interview</button>
+<button onclick="go(6)">06 · AI Composite</button>
+<button onclick="go(7)">07 · Refinement Engine</button>
+<button onclick="go(8)">08 · Memory Collision</button>
+<button onclick="go(9)">09 · AI Memory Firewall</button>
+<button onclick="go(10)">10 · 3D Reconstruction</button>
+<button onclick="go(11)">11 · Multi-Witness</button>
+<button onclick="go(12)">12 · Report & Audit</button>
+
+</div>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+<div class="top-title">
+SKETCH-X / AI FORENSIC COMPOSITE & WITNESS MEMORY INTELLIGENCE
+</div>
+<div class="status">● LOCAL FORENSIC DEMO</div>
+</div>
+
+<!-- PAGE 1 -->
+
+<section class="page active" id="p1">
+
+<div class="landing">
+
+<div class="hero">
+
+<div class="scan"></div>
+
+<h1>SKETCH-X</h1>
+
+<p>
+AI Forensic Composite & Witness Memory Intelligence Platform
+</p>
+
+<p>
+From memory to a trustworthy composite — preserve, analyze,
+reconstruct and report.
+</p>
+
+<button class="btn" onclick="go(2)">
+INVESTIGATOR LOGIN
+</button>
+
+<button class="btn secondary" onclick="go(3)">
+VIEW DEMO CASE
+</button>
+
+<div style="margin-top:25px;color:#668ca7;font-size:11px">
+TRUTH THROUGH TRACEABILITY
+</div>
+
+</div>
+</div>
+
+</section>
+
+<!-- PAGE 2 -->
+
+<section class="page" id="p2">
+
+<h1>Investigator Login & Case Dashboard</h1>
+<div class="subtitle">
+Secure case workspace and forensic investigation control center.
+</div>
+
+<div class="grid">
+
+<div class="card">
+<div class="small">INVESTIGATOR</div>
+<h2>Officer Demo</h2>
+<p class="small">Forensic Investigation Unit</p>
+</div>
+
+<div class="card">
+<div class="small">ACTIVE CASE</div>
+<h2 class="blue">SKX-2026-001</h2>
+<p class="small">Robbery Case · Bengaluru</p>
+</div>
+
+<div class="card">
+<div class="small">CASE STATUS</div>
+<div class="metric">ACTIVE</div>
+<p class="green">Memory capture enabled</p>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Quick Actions</h2>
+
+<button class="btn" onclick="go(3)">Capture Witness Memory</button>
+<button class="btn secondary" onclick="go(5)">Start AI Interview</button>
+<button class="btn secondary" onclick="go(6)">Generate Composite</button>
+<button class="btn secondary" onclick="go(10)">Open 3D Reconstruction</button>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+<div class="metric">01</div>
+<div class="small">WITNESSES</div>
+</div>
+
+<div class="card">
+<div class="metric">03</div>
+<div class="small">COMPOSITE VERSIONS</div>
+</div>
+
+<div class="card">
+<div class="metric">100%</div>
+<div class="small">AUDIT COVERAGE</div>
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 3 -->
+
+<section class="page" id="p3">
+
+<h1>Witness Memory Capture</h1>
+
+<div class="subtitle">
+Capture the witness's original recollection before memory changes.
+</div>
+
+<div class="card">
+
+<div class="label">WITNESS DESCRIPTION</div>
+
+<textarea id="witnessText">
+Male, around 30 years old, oval face, thick eyebrows, broad nose, short black hair, no beard.
+</textarea>
+
+<button class="btn" onclick="extractFeatures()">
+Extract Features
+</button>
+
+<button class="btn secondary" onclick="saveMemory()">
+🔒 Save Original Memory
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Extracted Facial Attributes</h2>
+
+<div class="grid" style="margin-top:15px">
+
+<div class="feature">
+<b>Age</b>
+<span id="fAge">30 years</span>
+</div>
+
+<div class="feature">
+<b>Face Shape</b>
+<span id="fFace">Oval</span>
+</div>
+
+<div class="feature">
+<b>Eyebrows</b>
+<span>Thick</span>
+</div>
+
+<div class="feature">
+<b>Nose</b>
+<span>Broad</span>
+</div>
+
+<div class="feature">
+<b>Hair</b>
+<span>Short / Black</span>
+</div>
+
+<div class="feature">
+<b>Beard</b>
+<span>None</span>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 4 -->
+
+<section class="page" id="p4">
+
+<h1>Original Memory Vault</h1>
+
+<div class="subtitle">
+The first recollection is preserved and cannot be silently overwritten.
+</div>
+
+<div class="card">
+
+<h2 class="green">🔒 ORIGINAL MEMORY LOCKED</h2>
+
+<p style="margin:15px 0;color:#9bb9cc">
+This is the witness's first recorded recollection.
+All future changes are stored as new versions.
+</p>
+
+<div class="timeline">
+
+<div class="timeline-item">
+<b class="blue">T0 — Initial Recollection</b>
+<p class="small">
+Male · approximately 30 · oval face · thick eyebrows · broad nose
+· short black hair · no beard
+</p>
+</div>
+
+<div class="timeline-item">
+<b class="yellow">Future Memory</b>
+<p class="small">
+Any later recollection will be compared with the original.
+</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 5 -->
+
+<section class="page" id="p5">
+
+<h1>Adaptive AI Interview</h1>
+
+<div class="subtitle">
+AI asks targeted questions based on uncertain or high-value facial features.
+</div>
+
+<div class="grid2">
+
+<div class="card">
+
+<div class="timeline">
+
+<div class="timeline-item">
+<b class="blue">AI</b>
+<p>Do you remember the eye shape?</p>
+</div>
+
+<div class="timeline-item">
+<b class="green">WITNESS</b>
+<p>Slightly narrow.</p>
+</div>
+
+<div class="timeline-item">
+<b class="blue">AI</b>
+<p>Was the jaw broad or narrow?</p>
+</div>
+
+<div class="timeline-item">
+<b class="green">WITNESS</b>
+<p>More narrow.</p>
+</div>
+
+<div class="timeline-item">
+<b class="blue">AI</b>
+<p>Was the face round, oval, or long?</p>
+</div>
+
+<div class="timeline-item">
+<b class="green">WITNESS</b>
+<p>Oval.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Memory DNA</h2>
+
+<div class="feature">
+<b>Age</b>
+30 years
+</div>
+
+<br>
+
+<div class="feature">
+<b>Face</b>
+Oval
+</div>
+
+<br>
+
+<div class="feature">
+<b>Eyes</b>
+Slightly narrow
+</div>
+
+<br>
+
+<div class="feature">
+<b>Jaw</b>
+Narrow
+</div>
+
+<br>
+
+<div class="feature">
+<b>Memory Stability</b>
+<span class="green">72%</span>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 6 -->
+
+<section class="page" id="p6">
+
+<h1>AI Composite Generation</h1>
+
+<div class="subtitle">
+Controlled facial composite generation with version history.
+</div>
+
+<div class="grid">
+
+<div class="version">
+<h3>V1 — Initial</h3>
+<div style="height:180px;margin-top:10px;background:#102a42;border-radius:8px;display:flex;align-items:center;justify-content:center">
+<span style="font-size:70px">👤</span>
+</div>
+<p class="small" style="margin-top:10px">
+Original witness attributes
+</p>
+</div>
+
+<div class="version">
+<h3>V2 — Jaw Refined</h3>
+<div style="height:180px;margin-top:10px;background:#102a42;border-radius:8px;display:flex;align-items:center;justify-content:center">
+<span style="font-size:70px">👤</span>
+</div>
+<p class="small" style="margin-top:10px">
+Narrower jaw applied
+</p>
+</div>
+
+<div class="version">
+<h3>V3 — Eyes Refined</h3>
+<div style="height:180px;margin-top:10px;background:#102a42;border-radius:8px;display:flex;align-items:center;justify-content:center">
+<span style="font-size:70px">👤</span>
+</div>
+<p class="small" style="margin-top:10px">
+Eye shape refined
+</p>
+</div>
+
+</div>
+
+<div class="card">
+
+<button class="btn" onclick="alert('Composite regeneration started.')">
+Regenerate
+</button>
+
+<button class="btn secondary" onclick="go(7)">
+Adjust Features
+</button>
+
+<button class="btn secondary" onclick="alert('Versions compared.')">
+Compare Versions
+</button>
+
+<button class="btn" onclick="go(10)">
+3D Reconstruction
+</button>
+
+</div>
+
+</section>
+
+<!-- PAGE 7 -->
+
+<section class="page" id="p7">
+
+<h1>Refinement Engine</h1>
+
+<div class="subtitle">
+Refine individual features without rebuilding the entire composite.
+</div>
+
+<div class="grid2">
+
+<div class="card">
+
+<div class="timeline">
+
+<div class="timeline-item">
+<b class="green">WITNESS</b>
+<p>Make the jaw slightly narrower.</p>
+</div>
+
+<div class="timeline-item">
+<b class="blue">AI</b>
+<p>Applying jaw-only refinement.</p>
+</div>
+
+<div class="timeline-item">
+<b class="green">WITNESS</b>
+<p>Keep the eyebrows thick.</p>
+</div>
+
+<div class="timeline-item">
+<b class="blue">AI</b>
+<p>Eyebrow feature locked.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Feature Controls</h2>
+
+<button class="btn secondary">Feature Isolation</button>
+<button class="btn secondary">Feature Lock</button>
+<button class="btn secondary">Counterfactual Lab</button>
+<button class="btn secondary">Compare A/B/C/D</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 8 -->
+
+<section class="page" id="p8">
+
+<h1>Memory Collision Detector</h1>
+
+<div class="subtitle">
+Detect contradictions between the original memory and later recollections.
+</div>
+
+<div class="grid2">
+
+<div class="card">
+
+<h2>Original Memory</h2>
+
+<div class="feature">
+<b>Beard</b>
+None
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b>Hair</b>
+Short / Black
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b>Face</b>
+Oval
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Later Memory</h2>
+
+<div class="feature">
+<b>Beard</b>
+<span class="red">Red beard</span>
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b>Hair</b>
+Short / Black
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b>Face</b>
+Oval
+</div>
+
+</div>
+
+</div>
+
+<div class="card" style="border-color:#a64b57">
+
+<h2 class="red">⚠ MEMORY COLLISION DETECTED</h2>
+
+<p class="small" style="margin-top:10px">
+The later recollection conflicts with the original preserved memory.
+The system does not overwrite either version.
+</p>
+
+</div>
+
+</section>
+
+<!-- PAGE 9 -->
+
+<section class="page" id="p9">
+
+<h1>AI Memory Firewall & Feature Provenance</h1>
+
+<div class="subtitle">
+Separate witness-confirmed information from AI-assisted generation.
+</div>
+
+<div class="grid2">
+
+<div class="card" style="text-align:center">
+
+<div style="
+width:280px;
+height:330px;
+margin:auto;
+border-radius:50%;
+background:linear-gradient(#173b56,#0b2136);
+border:2px solid #38dff8;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:130px;
+">
+👤
+</div>
+
+<p class="small" style="margin-top:15px">
+Composite visualization
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Feature Provenance</h2>
+
+<div class="feature">
+<b>Witness Confirmed</b>
+Oval face
+</div>
+
+<br>
+
+<div class="feature">
+<b>Witness Confirmed</b>
+Thick eyebrows
+</div>
+
+<br>
+
+<div class="feature">
+<b>Witness Confirmed</b>
+Broad nose
+</div>
+
+<br>
+
+<div class="feature">
+<b>AI-Assisted</b>
+Surface / lighting reconstruction
+</div>
+
+<br>
+
+<div class="feature">
+<b>Unknown</b>
+No silent inference permitted
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 10 REAL 3D -->
+
+<section class="page" id="p10">
+
+<h1>3D Memory Visibility & Reconstruction</h1>
+
+<div class="subtitle">
+Real local 3D forensic facial reconstruction — GLB model generated from the case composite.
+</div>
+
+<div class="grid2">
+
+<div class="model-card">
+
+<div class="model-label">
+LIVE 3D FORENSIC MODEL · SKETCH-X
+</div>
+
+<div class="zone">
+
+<span class="green-dot">● Visible / Supported</span>
+<span class="yellow-dot">● Partially Inferred</span>
+<span class="red-dot">● Unknown</span>
+
+</div>
+
+<model-viewer
+id="forensicModel"
+src="/models/sketchx_latest.glb"
+alt="SKETCH-X 3D forensic facial reconstruction"
+camera-controls
+auto-rotate
+rotation-per-second="25deg"
+shadow-intensity="1"
+exposure="1"
+camera-orbit="0deg 75deg 2.5m"
+field-of-view="30deg"
+environment-image="neutral"
+interaction-prompt="auto"
+touch-action="pan-y"
+>
+</model-viewer>
+
+</div>
+
+<div>
+
+<div class="card">
+
+<h2>3D View Controls</h2>
+
+<button class="btn" onclick="frontView()">Front</button>
+<button class="btn" onclick="rightView()">Right</button>
+<button class="btn" onclick="angleView()">45°</button>
+<button class="btn secondary" onclick="toggleRotate()">Rotate</button>
+<button class="btn secondary" onclick="resetView()">Reset</button>
+
+</div>
+
+<div class="card">
+
+<h2>Memory Visibility</h2>
+
+<div class="feature">
+<b class="green">Face Shape</b>
+Witness confirmed
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b class="green">Eyebrows</b>
+Witness confirmed
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b class="yellow">Ear / Side Profile</b>
+Partially reconstructed
+</div>
+
+<div class="feature" style="margin-top:10px">
+<b class="red">Unknown Features</b>
+Not treated as witness fact
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>3D Reconstruction</h2>
+
+<p class="small">
+Local TripoSR reconstruction. No paid Meshy API required.
+</p>
+
+<p class="small" style="margin-top:10px">
+Model: <span class="blue">sketchx_latest.glb</span>
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 11 -->
+
+<section class="page" id="p11">
+
+<h1>Multi-Witness Intelligence</h1>
+
+<div class="subtitle">
+Independent memory vaults prevent one witness from contaminating another.
+</div>
+
+<div class="card">
+
+<table>
+
+<thead>
+<tr>
+<th>Feature</th>
+<th>Witness 01</th>
+<th>Witness 02</th>
+<th>Consensus</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Face Shape</td>
+<td>Oval</td>
+<td>Oval</td>
+<td class="green">Oval</td>
+</tr>
+
+<tr>
+<td>Eyebrows</td>
+<td>Thick</td>
+<td>Thick</td>
+<td class="green">Thick</td>
+</tr>
+
+<tr>
+<td>Nose</td>
+<td>Broad</td>
+<td>Broad</td>
+<td class="green">Broad</td>
+</tr>
+
+<tr>
+<td>Beard</td>
+<td>None</td>
+<td class="red">Red beard</td>
+<td class="yellow">Conflict</td>
+</tr>
+
+<tr>
+<td>Hair</td>
+<td>Short black</td>
+<td>Short black</td>
+<td class="green">Consensus</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h2 class="green">Consensus</h2>
+<div class="metric">4 / 5</div>
+<p class="small">Major facial features aligned</p>
+</div>
+
+<div class="card">
+<h2 class="red">Conflict</h2>
+<div class="metric">1</div>
+<p class="small">Feature requires review</p>
+</div>
+
+<div class="card">
+<h2>Memory Independence</h2>
+<div class="metric">100%</div>
+<p class="small">Separate witness vaults</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- PAGE 12 -->
+
+<section class="page" id="p12">
+
+<h1>Final Composite, Report & Audit Log</h1>
+
+<div class="subtitle">
+Final forensic package with provenance, uncertainty and access history.
+</div>
+
+<div class="grid2">
+
+<div class="card">
+
+<h2>Final Composite</h2>
+
+<div style="
+height:400px;
+border-radius:12px;
+background:#102a42;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:150px;
+">
+👤
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Export Package</h2>
+
+<button class="btn" onclick="downloadReport()">
+2D Composite PNG
+</button>
+
+<button class="btn" onclick="download3D()">
+3D Model OBJ / GLB
+</button>
+
+<button class="btn" onclick="downloadReport()">
+Forensic Case Report
+</button>
+
+<button class="btn" onclick="downloadReport()">
+Memory Timeline
+</button>
+
+<button class="btn" onclick="downloadReport()">
+Uncertainty Report
+</button>
+
+<button class="btn secondary" onclick="downloadReport()">
+One-Click Case Package
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Strict Access Audit Log</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Time</th>
+<th>User</th>
+<th>Action</th>
+<th>Case</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>09:42:10</td>
+<td>Officer Demo</td>
+<td>Created Case</td>
+<td>SKX-2026-001</td>
+<td class="green">Authorized</td>
+</tr>
+
+<tr>
+<td>09:43:25</td>
+<td>Officer Demo</td>
+<td>Saved Original Memory</td>
+<td>SKX-2026-001</td>
+<td class="green">Authorized</td>
+</tr>
+
+<tr>
+<td>09:46:11</td>
+<td>Officer Demo</td>
+<td>Generated Composite V1</td>
+<td>SKX-2026-001</td>
+<td class="green">Authorized</td>
+</tr>
+
+<tr>
+<td>09:51:33</td>
+<td>Officer Demo</td>
+<td>Opened 3D Reconstruction</td>
+<td>SKX-2026-001</td>
+<td class="green">Authorized</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>Governance</h2>
+
+<div class="grid">
+
+<div class="feature">
+<b>RBAC</b>
+Role-based access
+</div>
+
+<div class="feature">
+<b>Encryption</b>
+Protected case data
+</div>
+
+<div class="feature">
+<b>Tamper-Evident</b>
+Audit history
+</div>
+
+<div class="feature">
+<b>Case Permissions</b>
+Case-level control
+</div>
+
+<div class="feature">
+<b>Bias Monitoring</b>
+AI oversight
+</div>
+
+<div class="feature">
+<b>AI/Human Attribution</b>
+Traceable decisions
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+</div>
+
+<div class="footer-strip">
+RBAC · ENCRYPTION · TAMPER-EVIDENT AUDIT · CASE PERMISSIONS · BIAS MONITORING · AI/HUMAN ATTRIBUTION
+</div>
+
+<script>
+
+let currentPage=1;
+let rotating=true;
+
+function go(n){
+
+    document.querySelectorAll(".page").forEach(p=>{
+        p.classList.remove("active");
+    });
+
+    const page=document.getElementById("p"+n);
+
+    if(page){
+        page.classList.add("active");
+        currentPage=n;
+    }
+
+    document.querySelectorAll(".nav button").forEach((b,i)=>{
+        b.classList.toggle("active",i===n-1);
+    });
+
+    window.scrollTo(0,0);
+}
+
+function extractFeatures(){
+
+    alert(
+        "AI Feature Extraction Complete\n\n"+
+        "Age: 30 years\n"+
+        "Face: Oval\n"+
+        "Eyebrows: Thick\n"+
+        "Nose: Broad\n"+
+        "Hair: Short / Black\n"+
+        "Beard: None"
+    );
+}
+
+function saveMemory(){
+
+    alert(
+        "Original Memory Vault saved successfully.\n\n"+
+        "This memory is now preserved as the first recollection."
+    );
+
+    go(4);
+}
+
+function frontView(){
+
+    const m=document.getElementById("forensicModel");
+
+    m.cameraOrbit="0deg 75deg 2.5m";
+}
+
+function rightView(){
+
+    const m=document.getElementById("forensicModel");
+
+    m.cameraOrbit="90deg 75deg 2.5m";
+}
+
+function angleView(){
+
+    const m=document.getElementById("forensicModel");
+
+    m.cameraOrbit="45deg 75deg 2.5m";
+}
+
+function resetView(){
+
+    const m=document.getElementById("forensicModel");
+
+    m.cameraOrbit="0deg 75deg 2.5m";
+    m.fieldOfView="30deg";
+}
+
+function toggleRotate(){
+
+    const m=document.getElementById("forensicModel");
+
+    rotating=!rotating;
+
+    if(rotating){
+        m.setAttribute("auto-rotate","");
+    }else{
+        m.removeAttribute("auto-rotate");
+    }
+}
+
+function download3D(){
+
+    window.open("/models/sketchx_latest.glb","_blank");
+}
+
+function downloadReport(){
+
+    const text=
+`SKETCH-X FORENSIC CASE REPORT
+
+Case ID: SKX-2026-001
+
+Original Witness Memory:
+Male, around 30 years old, oval face,
+thick eyebrows, broad nose, short black hair,
+no beard.
+
+Memory Intelligence:
+Original Memory Vault preserved.
+Adaptive AI interview completed.
+Memory Collision detected for beard feature.
+
+3D Reconstruction:
+Local GLB forensic reconstruction available.
+
+Important:
+SKETCH-X is an investigative decision-support
+system and does not establish identity or guilt.
+Investigator verification is required.
+
+Generated by SKETCH-X.
+`;
+
+    const blob=new Blob([text],{type:"text/plain"});
+    const url=URL.createObjectURL(blob);
+
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="SKETCH-X-Forensic-Case-Report.txt";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+window.addEventListener("load",()=>{
+
+    setTimeout(()=>{
+        document.getElementById("loader").classList.add("hide");
+    },1800);
+
+});
+
+</script>
+
+</body>
+</html>
